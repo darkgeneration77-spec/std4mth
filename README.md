@@ -7,6 +7,10 @@
 - 线之忍者：激光潜行 — 平行线与垂直线、反应挑战
 - 角度忍者：忍界试炼 — 锐角、直角、钝角、Boss 战
 
-适配桌面与移动设备。启用 GitHub Pages 后，站点地址为：
+适配桌面与移动设备。
+
+GitHub Pages 自动部署工作流已加入 `.github/workflows/pages.yml`。
+
+站点地址：
 
 `https://darkgeneration77-spec.github.io/std4mth/`
