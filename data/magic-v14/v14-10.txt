@@ -1,0 +1,83 @@
+YS4E2+iJ1bJ6YGqEXoKJfxoMYDxeMhZXYwKG75TdQxJEYaNcAtQJr8XPLyolYPsE+VyFm7PaxBURPrhVhZ4Ne+yPDf3r5WYy65mxASSs4YAIvH3hBj12RhR+iA+7EKEJl0QCX+wrMRDLyxSBnf62AUOfNleQ76l3wMJ3l/ZBaC9BHtUXQ0290Jfy2h1ir0fZ64BhpKy0QQ2UKYZJrLYAAA', 'skill2': 'data:image/webp;base64,UklGRtwAAABXRUJQVlA4INAAAACQBgCdASomAC4AP0WSvVcwKjujrjQLM3AoiWQAs7N2zfgtohSo7j+R/Gi5e3wxKfS4x139O8PdiIym61EAAPJNs6ep8Hz8/27LaMux2Q+75iYXsnZorxIVnx7Kp8+rV8TovVnj/Cp0rJsOZrYE5FBCi9RNJSku6G587nutcH+wh7AA6AAtIAGJl1PBj807jFEvRT641yqBaKeDIiBnD1ymHRSAJ15togAe5WjVRBWwMNJEK4koEGDZH2KnzN2j+sFylfb7juSJtKbZJSDnQAAA', 'skill3': 'data:image/webp;base64,UklGRtgAAABXRUJQVlA4IMwAAADwBgCdASooAC4AP0WWwFowKialI4z6ACiJYgCy/+3FLo+Myyd88tie4XDRc7aAM4cmkH/+0ULBypf+vJpqooAAAP1TvGM4hnjCUyd8mzrc0YGOtA9iYhmX14KGVJ5in4TociBjXnwH9krWlgKTshxlezQHweY2v7zEJ6F22y21yV12tDnbPHN8Gl7r39d3d1ZFl9RwnoBlest75JPhvBebGj8Rj988nd5dmnJs9EQWej3cYkRoTj+IdZprahOq7M9b6DUQyl38Ov/wwAA=', 'hurt1': 'data:image/webp;base64,UklGRt4AAABXRUJQVlA4INIAAAAwBQCdASodAC4AP0WaxlswKygkJWmaACiJQBhmhGeMD1fUB8Vv1epTgZCKakdAmYXGAAD+hAeN8SH+VjTvfMCUW1dvJJ281saFP1r7jP1XDRz0zjOHY9werA7c2DrThWppOT3WH0VG/Fl9tLOBLaBYH/HKkHKJ8Za25L4J3yJK+8xHLNfNU3NmVQtIuB+swEy01ybXxSM0J0A45zBvEBb55m2YInb9ZsEs0WpvIySjt6T8VbMzAl/pFkEBj3rgxMb605meIFOe1y7KK2cU9tx1KAA=', 'hurt2': 'data:image/webp;base64,UklGRrIAAABXRUJQVlA4IKYAAACQBQCdASoeAC4AP0WIulSwKKWjMBqqqgAoiUAYA/0gRd0r7xtdxqBouGtV9OXRdBqoamJWgAD+eSUYEcC3U2fiJr5LjNtGsfX9Bp9aDMYMWwlHcgD9qfWp92nSqFK/n4MHPTdLzvTo2E6jj5GjPe7wdfhC2DsbV3//VJ91OpsNJJiDH2P5ywmGxxPSohQD4zHfgbncJ/gCb2KOJ5OL1wjhS73iAAAA', 'hurt3': 'data:image/webp;base64,UklGRowAAABXRUJQVlA4IIAAAABQBQCdASoeAC4AP0WGuFWwKCUjMBqqqgAoiUAWjgn3IVMqkgV7XIUvzFbkyW9xNdwv6kAA+dZ6fafpEiPjdFSdJ2D2yJ+2uqzNj8izI8NZWBBwuwV6UrbHYU6OFiFGXm2loTPDl+zaThy1bpVzL+ckmKTFN7CEK46vZEdopoAAAA=='};const heroV14={};for(const [k,v] of Object.entries(HERO_V14)){heroV14[k]=new Image();heroV14[k].src=v}
+
+for(const [k,v] of Object.entries(HERO)){heroImgs[k]=new Image();heroImgs[k].src=v}
+for(const [k,v] of Object.entries(MON)){monImgs[k]=new Image();monImgs[k].src=v}
+
+const levels=[
+ {name:"森林世界",desc:"穿过森林古桥，利用浮动平台避开尖刺。",types:["slime1","slime4","mushroom","slime7"],zones:[700,1550,2450]},
+ {name:"魔法遗迹",desc:"深入符文遗迹，小心落石与机关平台。",types:["goblin2","knight","goblin3","knight2","bat1"],zones:[760,1600,2500]},
+ {name:"熔岩王城",desc:"穿越熔岩机关，击败 Mini Boss 和最终 Boss。",types:["knight2","knight3","goblin3","boss"],zones:[760,1650,2520]}
+];
+let p={x:90,y:0,w:98,h:108,vx:0,vy:0,on:false,face:1,hp:100,max:100,shield:0,atkcd:0,skillcd:0,inv:0,state:"idle",standingOn:null};
+
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)} addEventListener("resize",resize);resize();
+const gy=()=>H*.79,rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,coll=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+
+function makePlatform(x,y,w,move=0){return {x,y,w,h:18,baseX:x,move,t:Math.random()*100}}
+function buildHazards(){
+ platforms=[];spikes=[];rocks=[];lavaZones=[];secretChest=null;
+ if(level===0){
+   platforms=[makePlatform(720,gy()-145,180,55),makePlatform(1060,gy()-215,155,0),makePlatform(1370,gy()-130,170,70),makePlatform(2050,gy()-185,180,0)];
+   spikes=[{x:900,y:gy()-16,w:120,h:16},{x:1620,y:gy()-16,w:140,h:16},{x:2300,y:gy()-16,w:120,h:16}];
+   secretChest={x:1110,y:gy()-270,w:58,h:44,opened:false,secret:true};
+ } else if(level===1){
+   platforms=[makePlatform(620,gy()-130,160,0),makePlatform(980,gy()-210,150,80),makePlatform(1380,gy()-155,170,0),makePlatform(1840,gy()-235,150,65),makePlatform(2260,gy()-150,180,0)];
+   rocks=[{x:840,y:-60,r:18,vy:0,active:false,home:840},{x:1500,y:-90,r:22,vy:0,active:false,home:1500},{x:2150,y:-100,r:24,vy:0,active:false,home:2150}];
+   spikes=[{x:1180,y:gy()-16,w:115,h:16},{x:1980,y:gy()-16,w:130,h:16}];
+   secretChest={x:1900,y:gy()-295,w:58,h:44,opened:false,secret:true};
+ } else {
+   platforms=[makePlatform(580,gy()-145,160,60),makePlatform(930,gy()-220,145,0),makePlatform(1320,gy()-150,160,55),makePlatform(1830,gy()-210,145,0),makePlatform(2250,gy()-160,160,70)];
+   lavaZones=[{x:760,y:gy()-4,w:190,h:60},{x:1500,y:gy()-4,w:220,h:60},{x:2380,y:gy()-4,w:220,h:60}];
+   rocks=[{x:1220,y:-80,r:20,vy:0,active:false,home:1220},{x:2080,y:-90,r:24,vy:0,active:false,home:2080}];
+   secretChest={x:960,y:gy()-280,w:58,h:44,opened:false,secret:true};
+ }
+}
+function build(){
+ const L=levels[level];
+ $("bg").style.backgroundImage=`url("${BG[level]}")`;
+ $("stageName").textContent=L.name;$("introTitle").textContent=L.name;$("introDesc").textContent=L.desc;$("levelNameBig").textContent="LEVEL "+(level+1);
+ enemies=[];shots=[];fx=[];drops=[];chests=[];kills=0;portalOpen=false;combo=0;cameraX=0;checkpoint=0;bossRef=null;miniBossRef=null;attackChain=0;attackWindow=0;
+ p.max=100+ups.hp*25;p.hp=p.max;p.shield=ups.shield*20;p.x=90;p.y=gy()-p.h;p.vx=p.vy=0;p.standingOn=null;
+ let positions=[520,1040,1450,1960,2380,2780];
+ L.types.forEach((t,i)=>{
+   let boss=t==="boss";let img=boss?monImgs.knight3:monImgs[t];let hp=boss?18:3+level;
+   const e={type:t,img,x:positions[i]||2700,y:gy()-(boss?118:74),w:boss?118:78,h:boss?118:74,hp,max:hp,dir:i%2?1:-1,shield:(level>0&&i%2===0)||boss,dead:false,cool:rand(45,100),boss,home:positions[i]||2700,vy:0,state:"idle",phase:1,windup:0};
+   enemies.push(e);if(boss)bossRef=e;
+ });
+ if(level===2){
+   const mb={type:"mini",img:monImgs.knight,x:1850,y:gy()-96,w:96,h:96,hp:8,max:8,dir:-1,shield:true,dead:false,cool:70,boss:false,mini:true,home:1850,vy:0,state:"idle",phase:1,windup:0};
+   enemies.push(mb);miniBossRef=mb;
+ }
+ chests.push({x:1180,y:gy()-54,w:58,h:44,opened:false});
+ chests.push({x:2140,y:gy()-54,w:58,h:44,opened:false});
+ buildHazards();total=enemies.length;update();$("mission").textContent="向右探索，利用平台和机关继续前进。";$("levelIntro").classList.add("show");paused=true;$("bossBar").style.display="none"
+}
+function update(){
+ $("hpfill").style.width=Math.max(0,p.hp/p.max*100)+"%";$("coins").textContent=coin;$("sp").textContent=sp;$("count").textContent=kills+"/"+total;
+ $("worldProgressFill").style.width=Math.min(100,p.x/(worldW-100)*100)+"%";
+ $("zoneLabel").textContent=(p.x<1000?"探索区":p.x<2000?"机关区":"终点区域").toUpperCase();
+ if(bossRef&&!bossRef.dead&&Math.abs(p.x-bossRef.x)<700){$("bossBar").style.display="block";$("bossFill").style.width=Math.max(0,bossRef.hp/bossRef.max*100)+"%"}else $("bossBar").style.display="none";
+}
+function drawImg(img,x,y,w,h,flip=false,alpha=1,rot=0,sx=1,sy=1,bob=0){
+ if(!img.complete)return;
+ ctx.save();ctx.globalAlpha=alpha;
+ ctx.translate(x+w/2,y+h/2+bob);
+ ctx.rotate(rot);
+ ctx.scale((flip?-1:1)*sx,sy);
+ ctx.drawImage(img,-w/2,-h/2,w,h);
+ ctx.restore()
+}
+function heroFrame(){
+ const t=performance.now(),pick=(a,ms)=>heroV14[a[Math.floor(t/ms)%a.length]]||heroImgs.idle;
+ if(p.state==="attack1")return pick(["slash1","slash2","slash3","slash4"],65);
+ if(p.state==="attack2")return pick(["heavy1","heavy2","heavy3"],72);
+ if(p.state==="attack3")return pick(["fin1","fin2","fin3"],70);
+ if(p.state==="skill")return pick(["skill1","skill2","skill3"],85);
+ if(p.state==="hurt")return pick(["hurt1","hurt2","hurt3"],80);
+ if(!p.on)return p.vy<0?pick(["jump1","jump2","jump3"],105):pick(["fall1","fall2"],120);
+ if(Math.abs(p.vx)>.25)return pick(["run1","run2","run3","run4","run5","run6"],72);
+ return pick(["idle1","idle2","idle3"],180)
+}
+function showComboStage(text){$("comboStage").textContent=text;$("comboStage").classList.add("on");setTimeout(()=>$("comboStage").classList.remove("on"),330)}
+function hazardHint(text){$("hazardHint").textContent=text;$("hazardHint").classList.add("on");clearTimeout(hazardHint.t);hazardHint.t=setTimeout(()=>$("hazardHint").classList.remove("on"),900)}
+function attack(){if(paused)return;if(p.atkcd>0){if(attackWindow>0){attackChain=Math.min(3,attackChain+1);p.atkcd=16;attackWindow=14}else return}else{attackChain=1;p.atkcd=16;attackWindow=14}p.state="attack"+attackChain;showComboStage(attackChain===1?"SLASH":attackChain===2?"DOUBLE SLASH":"FINISHER");let bonus=at
