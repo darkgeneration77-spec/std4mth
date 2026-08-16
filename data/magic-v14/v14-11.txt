@@ -1,0 +1,50 @@
+tackChain===3?1:0;let box={x:p.face>0?p.x+p.w-14:p.x-58,y:p.y+8,w:66+(attackChain===3?18:0),h:72};for(const e of enemies){if(e.dead)continue;if(coll(box,e)){if(e.shield){question(e);return}damage(e,1+ups.attack+bonus,attackChain===3)}}}
+function skill(){if(paused||p.skillcd>0)return;p.skillcd=72;p.state="skill";shots.push({x:p.x+(p.face>0?p.w:0),y:p.y+37,vx:p.face*10,w:28,h:14,dmg:2+ups.attack,life:100})}
+function damage(e,d,finisher=false){e.hp-=d;burst(e.x+e.w/2,e.y+e.h/2,finisher?"#ffffff":"#ffe36d",finisher?18:10);combo++;comboT=120;$("comboNum").textContent=combo;$("combo").classList.add("on");e.state="hurt";e.x+=p.face*(finisher?34:14);if(e.boss){let old=e.phase;e.phase=e.hp<=6?3:e.hp<=12?2:1;if(e.phase!==old){burst(e.x+e.w/2,e.y+e.h/2,"#ff6a38",30);showComboStage("BOSS PHASE "+e.phase)}}if(e.hp<=0){e.dead=true;kills++;dropLoot(e.x+e.w/2,e.y+e.h/2,e.boss?5:e.mini?4:2);coin+=e.boss?60:e.mini?35:10;sp+=e.boss?2:e.mini?2:1;update();if(enemies.every(x=>x.dead)){portalOpen=true;$("mission").textContent="终点传送门已开启，继续向右！"}}}
+function dropLoot(x,y,n){for(let i=0;i<n;i++)drops.push({x:x+rand(-22,22),y:y-rand(5,25),vy:-rand(3,6),kind:Math.random()<.25?"gem":"coin",taken:false})}
+function burst(x,y,c,n=12){for(let i=0;i<n;i++)fx.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6-2,life:30,c})}
+function hurt(d){if(p.inv>0)return;if(p.shield>0){let u=Math.min(p.shield,d);p.shield-=u;d-=u}p.hp-=d;p.inv=55;p.state="hurt";combo=0;$("combo").classList.remove("on");update();if(p.hp<=0){p.hp=p.max;p.x=Math.max(80,checkpoint);p.y=gy()-p.h;cameraX=Math.max(0,p.x-W*.3);update()}}
+function question(e){if(paused)return;paused=true;currentShield=e;$("breakText").classList.remove("showBreak");let a=rand(3,10),b=rand(2,7),ans=a*b,unit="cm²";if(Math.random()<.45){let c=rand(2,4);ans=a*b*c;unit="cm³";$("qtext").innerHTML=`长 ${a} cm × 宽 ${b} cm × 高 ${c} cm<br>体积 = ?`}else $("qtext").innerHTML=`长 = <span class="hl">${a} cm</span>　宽 = <span class="hl">${b} cm</span><br>面积 = ?`;let set=new Set([ans]);while(set.size<4){let n=Math.max(1,ans+rand(-9,9));if(n!==ans)set.add(n)}$("opts").innerHTML=[...set].sort(()=>Math.random()-.5).map(v=>`<button class="opt" data-v="${v}">${v} ${unit}</button>`).join("");$("feedback").textContent="";$("opts").querySelectorAll(".opt").forEach(btn=>btn.onclick=()=>{if(+btn.dataset.v===ans){btn.classList.add("good");e.shield=false;sp++;coin+=10;update();$("breakText").classList.add("showBreak");$("feedback").style.color="#baffdc";$("feedback").textContent="护盾粉碎！技能点 +1";burst(e.x,e.y,"#79edff",18);setTimeout(()=>{$("question").classList.remove("show");paused=false},800)}else{btn.classList.add("bad");$("feedback").style.color="#ffd0d0";$("feedback").textContent="符文错误，再试。"}});$("question").classList.add("show")}
+
+function enemyAI(e){if(e.dead)return;e.cool--;let dx=p.x-e.x,dist=Math.abs(dx);e.dir=dx>0?1:-1;if(e.type.startsWith("slime")){if(e.cool<=0&&dist<230){e.vy=-7.5;e.cool=90;e.state="jump"}e.vy+=.4;e.y+=e.vy;if(e.y>=gy()-e.h){e.y=gy()-e.h;e.vy=0;e.state="idle"}e.x+=e.dir*.55}else if(e.type==="mushroom"){if(e.cool<=0&&dist<360){shots.push({enemy:true,x:e.x+e.w/2,y:e.y+20,vx:e.dir*3.3,vy:-1.2,w:12,h:12,dmg:10,life:150});e.cool=80;e.state="attack"}e.x+=e.dir*.35}else if(e.type.startsWith("goblin")){if(e.cool<=0&&dist<180){e.windup=18;e.cool=70;e.state="attack"}if(e.windup>0){e.windup--;if(e.windup===1)e.x+=e.dir*42}else e.x+=e.dir*.7}else if(e.type.startsWith("knight")||e.mini){if(e.cool<=0&&dist<230){e.windup=22;e.cool=e.mini?65:90;e.state="attack"}if(e.windup>0){e.windup--;if(e.windup===1&&dist<140)hurt(e.mini?18:14+level*2)}else e.x+=e.dir*(e.mini?.8:.45)}else if(e.type==="bat1"){e.y=gy()-165+Math.sin(performance.now()/260+e.home)*28;if(e.cool<=0&&dist<280){e.x+=e.dir*6;e.cool=65;e.state="attack"}else e.x+=e.dir*.5}else if(e.boss){e.phase=e.hp<=6?3:e.hp<=12?2:1;let speed=[0,0.65,1.0,1.35][e.phase];e.x+=e.dir*speed;if(e.cool<=0){if(e.phase===1){shots.push({enemy:true,x:e.x+e.w/2,y:e.y+35,vx:e.dir*-4.3,vy:0,w:15,h:15,dmg:16,life:140})}else if(e.phase===2){for(let i=-1;i<=1;i++)shots.push({enemy:true,x:e.x+e.w/2,y:e.y+35,vx:e.dir*-(4+i*.4),vy:i*1.2,w:15,h:15,dmg:16,life:140})}else{for(let i=-2;i<=2;i++)shots.push({enemy:true,x:e.x+e.w/2,y:e.y+35,vx:e.dir*-(4.4+i*.28),vy:i*.95,w:16,h:16,dmg:18,life:150});if(dist<220)e.x+=e.dir*45}e.cool=[0,58,48,38][e.phase];e.state="attack"}}e.x=Math.max(e.home-115,Math.min(e.home+125,e.x));if(coll(p,e)&&p.inv<=0)hurt(e.boss?22:e.mini?18:12)}
+
+function updatePlatforms(){
+ p.standingOn=null;
+ platforms.forEach(pl=>{
+   pl.t+=.02;let oldX=pl.x;pl.x=pl.baseX+Math.sin(pl.t)*pl.move;let dx=pl.x-oldX,py=pl.y;
+   if(p.vy>=0&&p.x+p.w>pl.x&&p.x<pl.x+pl.w&&p.y+p.h>=py&&p.y+p.h<=py+18){p.y=py-p.h;p.vy=0;p.on=true;p.standingOn=pl;p.x+=dx}
+ })
+}
+function updateHazards(){
+ spikes.forEach(s=>{if(coll(p,s)&&p.inv<=0){hurt(16);hazardHint("小心尖刺！")}});
+ lavaZones.forEach(l=>{if(coll(p,l)&&p.inv<=0){hurt(24);p.vy=-8;hazardHint("熔岩灼烧！")}});
+ rocks.forEach(r=>{
+   if(!r.active&&Math.abs(p.x-r.home)<180){r.active=true;r.x=r.home;r.y=-50;r.vy=0;hazardHint("落石！")}
+   if(r.active){r.vy+=.45;r.y+=r.vy;if(r.y>gy()-r.r){r.y=gy()-r.r;r.vy=0;r.active=false;r.home+=rand(160,280)}let rr={x:r.x-r.r,y:r.y-r.r,w:r.r*2,h:r.r*2};if(coll(p,rr)&&p.inv<=0)hurt(18)}
+ })
+}
+function physics(){
+ if(paused)return;
+ let speed=4.3+ups.speed*.68,jump=10.8+ups.speed*.55;
+ p.vx=0;if(keys.l){p.vx=-speed;p.face=-1}if(keys.r){p.vx=speed;p.face=1}if(keys.j&&p.on){p.vy=-jump;p.on=false}
+ p.vy+=.55;p.x+=p.vx;p.y+=p.vy;p.x=Math.max(0,Math.min(worldW-p.w,p.x));p.on=false;
+ if(p.y>=gy()-p.h){p.y=gy()-p.h;p.vy=0;p.on=true}
+ updatePlatforms();updateHazards();
+ if(p.atkcd>0)p.atkcd--;if(attackWindow>0)attackWindow--;else if(p.atkcd<=0)attackChain=0;
+ if(p.skillcd>0)p.skillcd--;if(p.inv>0)p.inv--;if(comboT>0){comboT--;if(!comboT){$("combo").classList.remove("on");combo=0}}
+ const L=levels[level];
+ if(p.x>L.zones[0]&&checkpoint<L.zones[0]){checkpoint=L.zones[0];$("checkpointText").textContent="CHECKPOINT 1"}
+ if(p.x>L.zones[1]&&checkpoint<L.zones[1]){checkpoint=L.zones[1];$("checkpointText").textContent="CHECKPOINT 2"}
+ if(p.x>L.zones[2]&&checkpoint<L.zones[2]){checkpoint=L.zones[2];$("checkpointText").textContent="FINAL ZONE"}
+ enemies.forEach(enemyAI);
+ shots.forEach(s=>{s.x+=s.vx;s.y+=(s.vy||0);s.life--;if(s.enemy){if(coll(p,s)&&p.inv<=0){hurt(s.dmg);s.life=0}}else enemies.forEach(e=>{if(!e.dead&&coll(s,e)){if(e.shield)question(e);else damage(e,s.dmg);s.life=0}})});shots=shots.filter(s=>s.life>0);
+ drops.forEach(d=>{if(d.taken)return;d.vy+=.25;d.y+=d.vy;if(d.y>gy()-16){d.y=gy()-16;d.vy=0}if(Math.abs((p.x+p.w/2)-d.x)<38&&Math.abs((p.y+p.h/2)-d.y)<48){d.taken=true;if(d.kind==="gem"){sp++;showLoot("✦ +1",d.x-cameraX,d.y)}else{coin+=5;showLoot("🪙 +5",d.x-cameraX,d.y)}update()}});drops=drops.filter(d=>!d.taken);
+ [...chests,...(secretChest?[secretChest]:[])].forEach(c=>{if(c.opened)return;if(Math.abs((p.x+p.w/2)-(c.x+c.w/2))<50&&Math.abs((p.y+p.h/2)-(c.y+c.h/2))<55){c.opened=true;dropLoot(c.x+c.w/2,c.y,c.secret?6:4);showLoot(c.secret?"隐藏宝箱！":"宝箱开启",c.x-cameraX,c.y-20);if(c.secret)sp+=1;update()}});
+ fx.forEach(f=>{f.x+=f.vx;f.y+=f.vy;f.vy+=.12;f.life--});fx=fx.filter(f=>f.life>0);
+ cameraX=Math.max(0,Math.min(worldW-W,p.x-W*.32));
+ if(portalOpen&&p.x>worldW-140)clearLevel();
+ p.state=p.atkcd>8?"attack"+Math.max(1,attackChain):p.skillcd>58?"skill":p.inv>45?"hurt":"idle";update()
+}
+function showLoot(text,x,y){const d=document.createElement("div");d.className="dropText";d.textContent=text;d.style.left=(x+20)+"px";d.style.top=(y-15)+"px";document.getElementById("game").appendChild(d);setTimeout(()=>d.remove(),900)}
+function clearLevel(){portalOpen=false;paused=true;$("upsp").textContent=sp;renderUps();$("upgrade").classList.add("show")}
+function renderUps(){[["attack","atkLv"],["hp","hpLv"],["speed","spdLv"],["shield","shLv"]].forEach(([k,id])=>$(id).textContent="Lv."+ups[k]+" / 3");document.querySelectorAll(".buy").forEach(b=>{let k=b.dataset.k;b.disabled=sp<1||ups[k]>=3;b.textC
