@@ -1,0 +1,108 @@
+}
+#question h2{color:#fff}
+#question .qtext{color:#eafaff}
+#question .hl{color:#ffe36a}
+#runeRing{
+ width:150px;height:150px;margin:2px auto 12px;position:relative;border-radius:50%;
+ border:2px solid rgba(104,234,255,.5);box-shadow:0 0 32px rgba(88,229,255,.22),inset 0 0 28px rgba(84,225,255,.08);
+ animation:runeSpin 9s linear infinite
+}
+#runeRing:before,#runeRing:after{
+ content:"";position:absolute;border-radius:50%;inset:15px;border:1px dashed rgba(184,245,255,.5)
+}
+#runeRing:after{inset:36px;border-style:solid;border-color:rgba(166,129,255,.4)}
+.runeCore{
+ position:absolute;inset:48px;border-radius:50%;background:radial-gradient(circle,#dffcff,#6ee8ff 25%,#6f67ff 62%,transparent 67%);
+ box-shadow:0 0 25px #77eaff
+}
+@keyframes runeSpin{to{transform:rotate(360deg)}}
+#question .opts{grid-template-columns:repeat(2,1fr)}
+#question .opt{
+ background:linear-gradient(180deg,rgba(26,60,82,.96),rgba(11,31,47,.96));
+ color:#eefdff;border:1px solid rgba(105,229,255,.38);box-shadow:0 5px 0 #173d55,0 0 16px rgba(70,218,255,.08)
+}
+#question .opt:hover{box-shadow:0 5px 0 #173d55,0 0 24px rgba(83,231,255,.22)}
+#question .opt.good{background:linear-gradient(#205f50,#153f35);box-shadow:0 5px 0 #153a31!important;color:#b8ffd9}
+#question .opt.bad{background:linear-gradient(#622d35,#3b1b20);box-shadow:0 5px 0 #2a1216!important;color:#ffd1d1}
+#breakText{
+ font-size:26px;font-weight:1000;color:#bdfbff;text-shadow:0 0 16px #63e7ff;margin-bottom:6px;
+ opacity:0;transform:scale(.7);transition:.18s
+}
+#breakText.showBreak{opacity:1;transform:scale(1)}
+.zoneMarker{
+ position:absolute;z-index:8;bottom:18%;padding:6px 10px;border-radius:9px;
+ background:rgba(6,18,30,.7);border:1px solid rgba(112,224,255,.25);color:#dff9ff;
+ font-size:10px;letter-spacing:1.5px;pointer-events:none
+}
+#checkpointText{left:50%;transform:translateX(-50%)}
+@media(max-width:700px){
+ #worldProgress{top:104px;width:76vw}
+ #zoneLabel{top:117px}
+}
+
+/* V1.2 combat feel */
+#bossBar{
+ position:absolute;z-index:12;left:50%;top:165px;transform:translateX(-50%);
+ width:min(620px,76vw);display:none;text-align:center;color:#fff
+}
+#bossName{font-size:10px;letter-spacing:3px;color:#ffb26f;margin-bottom:5px}
+.bossTrack{height:12px;background:rgba(24,8,12,.78);border-radius:10px;overflow:hidden;border:1px solid rgba(255,129,72,.35);box-shadow:0 0 18px rgba(255,95,45,.16)}
+#bossFill{height:100%;width:100%;background:linear-gradient(90deg,#ff4a31,#ff8a35,#ffd05e);transition:.15s}
+#comboStage{
+ position:absolute;z-index:14;left:50%;bottom:93px;transform:translateX(-50%);
+ font-size:22px;font-weight:1000;color:#fff;text-shadow:0 3px 12px #000,0 0 18px #70e8ff;
+ opacity:0;transition:.15s
+}
+#comboStage.on{opacity:1}
+.dropText{
+ position:absolute;z-index:15;pointer-events:none;color:#ffd85c;font-size:16px;font-weight:1000;
+ text-shadow:0 2px 7px #000;animation:lootFloat .9s forwards
+}
+@keyframes lootFloat{to{transform:translateY(-45px);opacity:0}}
+@media(max-width:700px){
+ #bossBar{top:138px}
+ #comboStage{bottom:80px;font-size:18px}
+}
+
+/* V1.3 stage hazards */
+#hazardHint{
+ position:absolute;z-index:13;left:50%;top:184px;transform:translateX(-50%);
+ padding:6px 10px;border-radius:9px;background:rgba(8,18,28,.72);
+ color:#ffe9a6;border:1px solid rgba(255,204,99,.25);font-size:11px;font-weight:800;
+ opacity:0;transition:.2s
+}
+#hazardHint.on{opacity:1}
+@media(max-width:700px){#hazardHint{top:158px}}
+</style>
+</head>
+<body>
+<div id="game">
+<div class="bg" id="bg"></div>
+<canvas id="canvas"></canvas>
+<div id="hud">
+ <div class="panel"><div class="row"><div><div class="mini">HP</div><div class="hpbar"><div id="hpfill"></div></div></div><div><div class="mini">COINS</div><div class="value gold">🪙 <span id="coins">0</span></div></div></div></div>
+ <div class="panel" id="stage"><small>ADVENTURE STAGE</small><span id="stageName">森林世界</span></div>
+ <div class="panel" id="right"><div class="mini">SKILL POINTS</div><div class="value cyan">✦ <span id="sp">0</span></div><div class="mini">ENEMIES <span id="count">0/0</span></div></div>
+</div>
+<div id="mission">击败所有怪物，寻找传送门。</div>
+<div id="combo">COMBO × <span id="comboNum">1</span></div>
+<div id="worldProgress"><div id="worldProgressFill"></div></div>
+<div id="zoneLabel">START ZONE</div>
+<div id="checkpointText" class="zoneMarker">战斗区域</div><div id="bossBar"><div id="bossName">BOSS · INFERNO SENTINEL</div><div class="bossTrack"><div id="bossFill"></div></div></div><div id="comboStage"></div><div id="hazardHint"></div>
+
+<div id="controls">
+ <div class="pad"><button class="ctrl" id="left">◀</button><button class="ctrl" id="rightBtn">▶</button><button class="ctrl" id="jump">▲</button></div>
+ <div class="pad"><button class="ctrl" id="skill">✦</button><button class="ctrl" id="atk">⚔</button></div>
+</div>
+
+<div id="question"><div class="card"><div class="eyebrow">MATH SHIELD BREAK</div><div id="runeRing"><div class="runeCore"></div></div><div id="breakText">PERFECT BREAK</div><h2>选择正确符文破盾</h2><div class="qtext" id="qtext"></div><div class="opts" id="opts"></div><div id="feedback"></div></div></div>
+
+<div id="upgrade"><div class="card dark"><div class="eyebrow">LEVEL CLEAR · UPGRADE</div><h2>清关强化</h2><div>可用技能点：<b class="gold">✦ <span id="upsp">0</span></b></div>
+<div class="upgrid">
+ <div class="up"><h3>⚔ 魔剑强化</h3><div id="atkLv" class="cyan">Lv.0 / 3</div><p>提高普通攻击和技能伤害。</p><button class="buy" data-k="attack"></button></div>
+ <div class="up"><h3>❤️ 生命核心</h3><div id="hpLv" class="cyan">Lv.0 / 3</div><p>提高最大生命，并在下一关回满。</p><button class="buy" data-k="hp"></button></div>
+ <div class="up"><h3>⚡ 风行</h3><div id="spdLv" class="cyan">Lv.0 / 3</div><p>提升移动速度与跳跃高度。</p><button class="buy" data-k="speed"></button></div>
+ <div class="up"><h3>🛡 魔法护盾</h3><div id="shLv" class="cyan">Lv.0 / 3</div><p>每关开始获得额外护盾。</p><button class="buy" data-k="shield"></button></div>
+</div><button class="primary" id="next">进入下一关 ▶</button></div></div>
+
+<div id="levelIntro" class="show"><div class="card dark"><div class="eyebrow">READY FOR ADVENTURE</div><div id="level
