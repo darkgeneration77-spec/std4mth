@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>魔剑学园：数学远征</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#08131e}
+body{touch-action:none}
+#game{position:fixed;inset:0;overflow:hidden;background:#111}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:background-image .7s ease,filter .7s ease;filter:saturate(1.05) brightness(.94)}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,15,25,.05),rgba(5,10,18,.24))}
+#canvas{position:absolute;inset:0;width:100%;height:100%;z-index:3}
+#hud{position:absolute;z-index:10;left:14px;right:14px;top:12px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:start}
+.panel{background:linear-gradient(180deg,rgba(13,29,46,.92),rgba(5,15,27,.84));border:1px solid rgba(123,223,255,.28);border-radius:16px;padding:9px 13px;color:#fff;box-shadow:0 12px 30px #0006,inset 0 0 24px #4ad8ff0c;backdrop-filter:blur(10px)}
+.row{display:flex;gap:14px;align-items:center}.mini{font-size:9px;letter-spacing:1.6px;color:#95aaba}.value{font-size:18px;font-weight:1000}
+.hpbar{width:135px;height:9px;border-radius:10px;background:#17222f;overflow:hidden}#hpfill{height:100%;width:100%;background:linear-gradient(90deg,#ff4d67,#ff9147)}
+#stage{text-align:center;font-weight:1000;border-top:2px solid #55dfff;padding:9px 22px}#stage small{display:block;font-size:9px;letter-spacing:3px;color:#6ee4ff}
+#right{text-align:right}.gold{color:#ffd75e}.cyan{color:#67e9ff}
+#mission{position:absolute;z-index:9;top:88px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:12px;background:rgba(7,18,30,.66);color:#fff;border:1px solid rgba(119,219,255,.2);font-weight:800;font-size:13px;box-shadow:0 10px 24px #0004}
+#controls{position:absolute;z-index:12;left:0;right:0;bottom:14px;display:flex;justify-content:space-between;align-items:end;padding:0 14px}.pad{display:flex;gap:8px}
+.ctrl{width:58px;height:58px;border-radius:17px;border:1px solid #ffffffaa;background:linear-gradient(#f8feffef,#d8eef7ed);box-shadow:0 6px 0 #6d99ad;color:#17445e;font-size:23px;font-weight:1000;user-select:none}
+.ctrl:active,.ctrl.on{transform:translateY(4px);box-shadow:0 2px 0 #6d99ad}#atk{width:80px;background:linear-gradient(#fff28a,#ffc23d);box-shadow:0 6px 0 #b9760c;color:#744600}#skill{background:linear-gradient(#e8dcff,#a681ff);color:#412382}
+#question,#upgrade,#levelIntro,#result{position:absolute;z-index:40;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,12,22,.72);backdrop-filter:blur(8px)}.show{display:flex!important}
+.card{width:min(620px,92vw);max-height:90vh;overflow:auto;border-radius:24px;padding:24px;background:linear-gradient(#fafdff,#dfeef7);color:#173d55;border:2px solid #fff;box-shadow:0 28px 80px #0007;text-align:center}
+.dark{background:linear-gradient(#11293d,#071623);color:#fff;border-color:#31566d}.eyebrow{font-size:10px;letter-spacing:3px;color:#6c93aa}.dark .eyebrow{color:#6be3ff}.card h2{margin:5px 0 10px;font-size:28px}
+.qtext{font-size:18px;line-height:1.65;margin:12px 0}.hl{font-size:21px;font-weight:1000;color:#d45a1b}.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opt{padding:13px;border:0;border-radius:13px;background:linear-gradient(#fff8d7,#ffd85a);box-shadow:0 5px 0 #cb8b18;color:#714700;font-weight:1000;font-size:16px}.opt.good{background:linear-gradient(#ddffd8,#72d467);box-shadow:0 5px 0 #3a973b;color:#205f28}.opt.bad{background:linear-gradient(#ffe1da,#ff806f);box-shadow:0 5px 0 #b83b31;color:#7b211c}#feedback{min-height:24px;margin-top:10px;font-weight:900}
+.upgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}.up{padding:15px;border-radius:15px;background:#0d2132;border:1px solid #21455c;text-align:left}.up h3{margin:0 0 5px}.up p{margin:0 0 10px;color:#9db1bd;font-size:13px;line-height:1.45}.buy{width:100%;padding:10px;border:0;border-radius:10px;background:linear-gradient(135deg,#2ddcf0,#167d9c);color:#fff;font-weight:1000}.buy:disabled{background:#273640;color:#74848e}
+.primary{margin-top:16px;padding:13px 28px;border:0;border-radius:12px;background:linear-gradient(#ffe76c,#ffad25);color:#734500;font-weight:1000;font-size:16px}.stars{font-size:46px;color:#ffd04a;letter-spacing:7px}#levelNameBig{font-size:42px;font-weight:1000;color:#65e4ff;text-shadow:0 0 25px #49dfff44}
+#combo{position:absolute;z-index:10;right:22px;top:110px;color:#fff;font-size:22px;font-weight:1000;text-shadow:0 3px 10px #000;opacity:0;transition:.2s}#combo.on{opacity:1}
+@media(max-width:700px){#hud{left:6px;right:6px;top:6px;grid-template-columns:1fr 1.15fr 1fr;gap:5px}.panel{padding:6px 8px}.value{font-size:14px}.hpbar{width:80px}#stage{font-size:12px;padding:7px}#mission{top:72px;font-size:11px;max-width:80vw;text-align:center}.ctrl{width:52px;height:52px}#atk{width:68px}.upgrid{grid-template-columns:1fr}}
+
+/* V1.1 upgrades */
+#worldProgress{
+ position:absolute;z-index:11;left:50%;top:128px;transform:translateX(-50%);
+ width:min(620px,72vw);height:8px;border-radius:12px;overflow:hidden;
+ background:rgba(5,14,24,.58);border:1px solid rgba(119,224,255,.25);
+ box-shadow:0 6px 18px rgba(0,0,0,.25)
+}
+#worldProgressFill{height:100%;width:0;background:linear-gradient(90deg,#59e1ff,#9f7dff,#ffd85c);transition:.2s}
+#zoneLabel{
+ position:absolute;z-index:11;left:50%;top:142px;transform:translateX(-50%);
+ color:#dff9ff;font-size:10px;letter-spacing:2px;text-shadow:0 2px 10px #000
+}
+#question{
+ background:radial-gradient(circle at center,rgba(18,75,99,.26),rgba(1,8,17,.82));
+}
+#question .card{
+ background:rgba(7,21,34,.74);color:#fff;border:1px solid rgba(101,230,255,.34);
+ box-shadow:0 0 70px rgba(70,219,255,.12),0 28px 80px #0009;
+ backdrop-filter:blur(10px)
+}
+#question .eyebrow{color:#72e9ff}
+#question h2{color:#fff}
+#question .qtext{color:#eafaff}
+#question .hl{color:#ffe36a}
+#runeRing{
+ width:150px;height:150px;margin:2px auto 12px;position:relative;border-radius:50%;
+ border:2px solid rgba(104,234,255,.5);box-shadow:0 0 32px rgba(88,229,255,.22),inset 0 0 28px rgba(84,225,255,.08);
+ animation:runeSpin 9s linear infinite
+}
+#runeRing:before,#runeRing:after{
+ content:"";position:absolute;border-radius:50%;inset:15px;border:1px dashed rgba(184,245,255,.5)
+}
+#runeRing:after{inset:36px;border-style:solid;border-color:rgba(166,129,255,.4)}
+.runeCore{
+ position:absolute;inset:48px;border-radius:50%;background:radial-gradient(circle,#dffcff,#6ee8ff 25%,#6f67ff 62%,transparent 67%);
+ box-shadow:0 0 25px #77eaff
+}
+@keyframes runeSpin{to{transform:rotate(360deg)}}
+#question .opts{grid-template-columns:repeat(2,1fr)}
+#question .opt{
+ background:linear-gradient(180deg,rgba(26,60,82,.96),rgba(11,31,47,.96));
+ color:#eefdff;border:1px solid rgba(105,229,255,.38);box-shadow:0 5px 0 #17
