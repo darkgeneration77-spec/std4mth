@@ -37,5 +37,11 @@ addEventListener("keyup",e=>{if(["a","A","ArrowLeft"].includes(e.key))keys.l=fal
 build();
 })();
 </script>
+<style>
+#bgmPanel{position:fixed;z-index:9998;right:14px;top:14px;min-width:190px;padding:10px 11px;border-radius:14px;background:rgba(5,18,31,.82);border:1px solid rgba(113,226,255,.32);box-shadow:0 8px 24px rgba(0,0,0,.35);backdrop-filter:blur(8px);font-family:system-ui,"Microsoft YaHei",sans-serif;color:#e8fbff}
+#bgmTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}#bgmName{font-size:11px;font-weight:900;letter-spacing:.4px;color:#bff7ff}#bgmToggle{border:1px solid rgba(117,232,255,.38);background:#123249;color:#e9fcff;border-radius:9px;padding:5px 8px;font-size:10px;font-weight:1000;cursor:pointer}#bgmVolume{width:100%;accent-color:#6ee7ff}#bgmVolLabel{font-size:9px;color:#8faabd;margin-bottom:3px}@media(max-width:650px){#bgmPanel{right:8px;top:8px;min-width:155px;padding:8px}#bgmName{font-size:9px}#bgmToggle{font-size:9px;padding:4px 6px}}
+</style>
+<div id="bgmPanel"><div id="bgmTop"><span id="bgmName">森林晨光</span><button id="bgmToggle">♫ ON</button></div><div id="bgmVolLabel">BGM 音量</div><input id="bgmVolume" type="range" min="0" max="100" value="38"></div>
+<script src="bgm-system.js?v=20260816e"></script>
 </body></html>
 
