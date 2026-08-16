@@ -14,3 +14,5 @@ GitHub Pages 自动部署工作流已加入 `.github/workflows/pages.yml`。
 站点地址：
 
 `https://darkgeneration77-spec.github.io/std4mth/`
+
+Deployment trigger: 2026-08-16
