@@ -1,0 +1,41 @@
+ontent=ups[k]>=3?"已满级":"升级 · ✦1"});$("upsp").textContent=sp}
+document.querySelectorAll(".buy").forEach(b=>b.onclick=()=>{let k=b.dataset.k;if(sp<1||ups[k]>=3)return;sp--;ups[k]++;renderUps();update()});
+$("next").onclick=()=>{$("upgrade").classList.remove("show");if(level>=2){$("final").innerHTML=`金币：<b class="gold">${coin}</b><br>剩余技能点：<b class="gold">${sp}</b><br>3 个世界全部完成。`;$("result").classList.add("show");return}level++;build()};
+$("start").onclick=()=>{$("levelIntro").classList.remove("show");paused=false};
+
+function drawBackgroundParallax(){document.getElementById("bg").style.backgroundPosition=`${-cameraX*.12}px center`}
+function drawPlatform(pl){let sx=pl.x-cameraX;ctx.fillStyle=level===2?"#4a3031":level===1?"#244f5b":"#5f744b";ctx.fillRect(sx,pl.y,pl.w,pl.h);ctx.fillStyle=level===2?"#ff7c34":level===1?"#54e7df":"#7fd56c";ctx.fillRect(sx,pl.y,pl.w,5)}
+function drawSpike(s){let sx=s.x-cameraX;ctx.fillStyle="#cdd9e1";for(let x=0;x<s.w;x+=18){ctx.beginPath();ctx.moveTo(sx+x,s.y+s.h);ctx.lineTo(sx+x+9,s.y);ctx.lineTo(sx+x+18,s.y+s.h);ctx.fill()}}
+function drawLava(l){let sx=l.x-cameraX;let g=ctx.createLinearGradient(0,l.y,0,l.y+l.h);g.addColorStop(0,"#ffd247");g.addColorStop(.35,"#ff6b24");g.addColorStop(1,"#8d201c");ctx.fillStyle=g;ctx.fillRect(sx,l.y,l.w,l.h)}
+function drawRock(r){if(!r.active)return;let sx=r.x-cameraX;ctx.fillStyle="#5b504c";ctx.beginPath();ctx.arc(sx,r.y,r.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#2f2927";ctx.stroke()}
+function drawChest(c){if(!c||c.opened)return;let sx=c.x-cameraX;ctx.fillStyle=c.secret?"#6441a8":"#7b4b24";ctx.fillRect(sx,c.y,c.w,c.h);ctx.fillStyle=c.secret?"#b991ff":"#d5a23c";ctx.fillRect(sx,c.y+8,c.w,6);ctx.fillRect(sx+c.w/2-4,c.y+15,8,14)}
+function drawDrop(d){let sx=d.x-cameraX;if(d.kind==="gem"){ctx.fillStyle="#72ecff";ctx.beginPath();ctx.moveTo(sx,d.y-9);ctx.lineTo(sx+8,d.y);ctx.lineTo(sx,d.y+9);ctx.lineTo(sx-8,d.y);ctx.fill()}else{ctx.fillStyle="#ffd33d";ctx.beginPath();ctx.arc(sx,d.y,7,0,Math.PI*2);ctx.fill()}}
+
+function drawHeroAnimated(){
+ let frame=heroFrame(),flip=p.face<0;
+ let alpha=p.inv>0&&Math.floor(p.inv/5)%2===0?.35:1;
+ drawImg(frame,p.x-cameraX,p.y,p.w,p.h,flip,alpha,0,1,1,0)
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);drawBackgroundParallax();
+ let g=ctx.createLinearGradient(0,gy()-70,0,H);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,.28)");ctx.fillStyle=g;ctx.fillRect(0,gy()-70,W,H-gy()+70);
+ lavaZones.forEach(drawLava);platforms.forEach(drawPlatform);spikes.forEach(drawSpike);rocks.forEach(drawRock);
+ chests.forEach(drawChest);drawChest(secretChest);drops.forEach(drawDrop);
+ enemies.forEach(e=>{if(e.dead)return;let sx=e.x-cameraX;if(sx<-160||sx>W+160)return;drawImg(e.img,sx,e.y,e.w,e.h,e.dir<0,1);ctx.fillStyle="rgba(20,8,16,.75)";ctx.fillRect(sx,e.y-10,e.w,5);ctx.fillStyle=e.boss?"#ffb33d":e.mini?"#c58cff":"#71df6b";ctx.fillRect(sx,e.y-10,e.w*(e.hp/e.max),5);if(e.shield){ctx.strokeStyle="#69ebff";ctx.lineWidth=3;ctx.shadowColor="#58dfff";ctx.shadowBlur=14;ctx.beginPath();ctx.arc(sx+e.w/2,e.y+e.h/2,Math.max(e.w,e.h)*.56,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0}});
+ if(portalOpen){let sx=worldW-90-cameraX;ctx.save();ctx.translate(sx,gy()-58);ctx.strokeStyle="#63ecff";ctx.lineWidth=6;ctx.shadowColor="#63ecff";ctx.shadowBlur=28;ctx.beginPath();ctx.ellipse(0,0,28,46,0,0,Math.PI*2);ctx.stroke();ctx.restore()}
+ drawHeroAnimated();
+ shots.forEach(s=>{let sx=s.x-cameraX;ctx.fillStyle=s.enemy?"#ff6a45":"#8de9ff";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(sx,s.y,8,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0});
+ fx.forEach(f=>{let sx=f.x-cameraX;ctx.globalAlpha=f.life/30;ctx.fillStyle=f.c;ctx.beginPath();ctx.arc(sx,f.y,3,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1});
+ physics();requestAnimationFrame(draw)
+}
+draw();
+
+function bind(id,key){let el=$(id),dn=e=>{e.preventDefault();keys[key]=true;el.classList.add("on")},up=e=>{e.preventDefault();keys[key]=false;el.classList.remove("on")};el.onpointerdown=dn;["pointerup","pointercancel","pointerleave"].forEach(v=>el.addEventListener(v,up))}
+bind("left","l");bind("rightBtn","r");bind("jump","j");$("atk").onpointerdown=e=>{e.preventDefault();attack()};$("skill").onpointerdown=e=>{e.preventDefault();skill()};
+addEventListener("keydown",e=>{if(["a","A","ArrowLeft"].includes(e.key))keys.l=true;if(["d","D","ArrowRight"].includes(e.key))keys.r=true;if(["w","W","ArrowUp"," "].includes(e.key))keys.j=true;if(["j","J"].includes(e.key))attack();if(["k","K"].includes(e.key))skill()});
+addEventListener("keyup",e=>{if(["a","A","ArrowLeft"].includes(e.key))keys.l=false;if(["d","D","ArrowRight"].includes(e.key))keys.r=false;if(["w","W","ArrowUp"," "].includes(e.key))keys.j=false});
+build();
+})();
+</script>
+</body></html>
+
